@@ -36,6 +36,3 @@ This approach works well because fake news often uses **fear, shock, exaggeratio
 Copy → Paste → Analyze inside the app.
 
 ---
-
-python -m venv venv
-venv\Scripts\activate
