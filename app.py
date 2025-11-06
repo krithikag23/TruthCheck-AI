@@ -2,7 +2,7 @@ import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-MODEL_NAME = "mohamadsoltani/Fake-News-BERT-Base-uncased"
+MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
 
 @st.cache_resource
 def load_model():
@@ -12,30 +12,26 @@ def load_model():
 
 tokenizer, model = load_model()
 
-st.set_page_config(page_title="TruthCheck AI", page_icon="📰", layout="centered")
+st.set_page_config(page_title="TruthCheck AI", page_icon="📰")
 
 st.title("📰 TruthCheck AI")
-st.write("Enter a news headline or statement below:")
+st.write("Detect whether a news statement is credible or misleading.")
 
-text = st.text_area("News Text", height=150)
+text = st.text_area("Enter News Headline:", height=150)
 
 if st.button("Analyze"):
-    if not text.strip():
-        st.warning("Please enter some text.")
+    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+    logits = model(**inputs).logits
+    probs = torch.softmax(logits, dim=1)[0]
+
+    positive = probs[1].item() * 100  # suggests real
+    negative = probs[0].item() * 100  # suggests fake
+
+    if positive > negative:
+        st.success(f"✅ Likely Real ({positive:.2f}% confidence)")
     else:
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-        with torch.no_grad():
-            logits = model(**inputs).logits
-            probs = torch.softmax(logits, dim=1)[0]
-            fake_prob = probs[0].item() * 100
-            real_prob = probs[1].item() * 100
+        st.error(f"❌ Likely Fake ({negative:.2f}% confidence)")
 
-        st.write("### Result:")
-        if fake_prob > real_prob:
-            st.error(f"❌ Fake News Detected ({fake_prob:.2f}% confidence)")
-        else:
-            st.success(f"✅ Real News Likely ({real_prob:.2f}% confidence)")
-
-        st.write("### Confidence Breakdown:")
-        st.write(f"- Fake: **{fake_prob:.2f}%**")
-        st.write(f"- Real: **{real_prob:.2f}%**")
+    st.write("### Confidence Breakdown:")
+    st.write(f"- Real: **{positive:.2f}%**")
+    st.write(f"- Fake: **{negative:.2f}%**")
