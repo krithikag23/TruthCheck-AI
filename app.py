@@ -2,7 +2,7 @@ import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-MODEL_NAME = "mrm8488/bert-tiny-fake-news-detection"
+MODEL_NAME = "mohamadsoltani/Fake-News-BERT-Base-uncased"
 
 @st.cache_resource
 def load_model():
