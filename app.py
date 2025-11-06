@@ -2,6 +2,9 @@ import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
+# ✅ MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(page_title="TruthCheck AI", page_icon="📰", layout="centered")
+
 MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
 
 @st.cache_resource
@@ -12,26 +15,27 @@ def load_model():
 
 tokenizer, model = load_model()
 
-st.set_page_config(page_title="TruthCheck AI", page_icon="📰")
-
 st.title("📰 TruthCheck AI")
 st.write("Detect whether a news statement is credible or misleading.")
 
 text = st.text_area("Enter News Headline:", height=150)
 
 if st.button("Analyze"):
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
-    logits = model(**inputs).logits
-    probs = torch.softmax(logits, dim=1)[0]
-
-    positive = probs[1].item() * 100  # suggests real
-    negative = probs[0].item() * 100  # suggests fake
-
-    if positive > negative:
-        st.success(f"✅ Likely Real ({positive:.2f}% confidence)")
+    if not text.strip():
+        st.warning("⚠️ Please enter some text.")
     else:
-        st.error(f"❌ Likely Fake ({negative:.2f}% confidence)")
+        inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+        logits = model(**inputs).logits
+        probs = torch.softmax(logits, dim=1)[0]
 
-    st.write("### Confidence Breakdown:")
-    st.write(f"- Real: **{positive:.2f}%**")
-    st.write(f"- Fake: **{negative:.2f}%**")
+        positive = probs[1].item() * 100  # -> Real
+        negative = probs[0].item() * 100  # -> Fake
+
+        if positive > negative:
+            st.success(f"✅ Likely Real ({positive:.2f}% confidence)")
+        else:
+            st.error(f"❌ Likely Fake ({negative:.2f}% confidence)")
+
+        st.write("### Confidence Breakdown:")
+        st.write(f"- Real: **{positive:.2f}%**")
+        st.write(f"- Fake: **{negative:.2f}%**")
