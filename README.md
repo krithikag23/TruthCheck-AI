@@ -17,6 +17,7 @@ This project runs **locally on any laptop (CPU only)** and requires **no model t
 ---
 
 ## 🧠 How It Works
+
 The app uses **DistilBERT sentiment analysis behavior**:
 - **Positive / neutral tone → Likely Real**
 - **Emotion-heavy / dramatic / manipulative tone → Likely Fake**
