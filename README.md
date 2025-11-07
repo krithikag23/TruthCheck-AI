@@ -6,6 +6,7 @@ This project runs **locally on any laptop (CPU only)** and requires **no model t
 ---
 
 ## ✨ Features
+
 - 🔍 Analyzes headlines and short news statements
 - 🤖 Powered by **DistilBERT** (Transformer-based NLP model)
 - ⚡ Runs **fast** on CPU—no GPU required
